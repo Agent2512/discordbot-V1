@@ -1,25 +1,29 @@
-import Database from "bun:sqlite";
+import { DataType, GreatDB, Schema } from "great.db";
 
-const db = new Database("data.db", { create: true });
+const db = new GreatDB.Database({
+    type: GreatDB.Type.File,
+    filename: "data.db",
+    location: "./database",
+});
 
-const init = async () => {
-    db.run("CREATE TABLE IF NOT EXISTS initCategory (category TEXT PRIMARY KEY)");
-    db.run("CREATE TABLE IF NOT EXISTS makerChannel (channel TEXT PRIMARY KEY)");
-}
+// db.pragma("journal_mode").set("WAL");
 
-export const base = () => {
-    init();
+const initCategorySchema = Schema.Create({
+    id: DataType.AutoIncrement,
+    category: DataType.String
+});
 
-    return {
-        initCategory: {
-            set: (category: string) => db.query("INSERT INTO initCategory (category) VALUES (?)").run(category),
-            get: (category: string) => db.query("SELECT * FROM initCategory WHERE category = ?").get(category),
-        },
-        makerChannel: {
-            set: (channel: string) => db.query("INSERT INTO makerChannel (channel) VALUES (?)").run(channel),
-            get: (channel: string) => db.query("SELECT * FROM makerChannel WHERE channel = ?").get(channel),
-        }
-    }
-}
+const trackingChannelSchema = Schema.Create({
+    id: DataType.AutoIncrement,
+    channel: DataType.String,
+    type: DataType.String,
+    user: DataType.String,
+});
 
-export type base = ReturnType<typeof base>
+
+export const Database = () => ({
+    initCategory: db.table("initCategory", initCategorySchema),
+    trackingChannel: db.table("trackingChannel", trackingChannelSchema),
+})
+
+export type Database = ReturnType<typeof Database>

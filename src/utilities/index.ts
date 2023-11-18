@@ -1,4 +1,5 @@
 import { Guild, GuildChannelTypes } from "discord.js";
+import { Database } from "../database";
 
 export const makeChannel = async (guild: Guild, channelName: string, type: GuildChannelTypes, parentCategory?: string) => {
     const channel = await guild.channels.create({
@@ -10,4 +11,10 @@ export const makeChannel = async (guild: Guild, channelName: string, type: Guild
     if (!channel) return null;
 
     return channel;
+}
+
+export const isTracking = (channelId: string, database: Database) => {
+    const channel = database.trackingChannel.get("channel", channelId)
+
+    return channel ? channel : false;
 }

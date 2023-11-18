@@ -14,6 +14,7 @@
     "put": "bun run src/PUT.ts"
   },
   "dependencies": {
-    "discord.js": "^14.14.1"
+    "discord.js": "^14.14.1",
+    "great.db": "^3.0.0"
   }
 }

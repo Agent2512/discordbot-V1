@@ -1,5 +1,5 @@
 import { ChannelType, CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { base } from "../database";
+import { Database } from "../database";
 import { makeChannel } from "../utilities";
 
 export const data = new SlashCommandBuilder()
@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
             .setRequired(true)
     )
 
-export const execute = async (interaction: CommandInteraction, db: base) => {
+export const execute = async (interaction: CommandInteraction, db: Database) => {
     const category = interaction.options.get("category");
     if (!category) return;
 
@@ -30,19 +30,19 @@ export const execute = async (interaction: CommandInteraction, db: base) => {
         return await interaction.reply(`must be a category`);
     }
 
-    const isCat = db.initCategory.get(caId);
+    const isCat = db.initCategory.has("category", caId);
 
     if (isCat) {
         return await interaction.reply(`already tracking`);
     }
     else {
-        db.initCategory.set(caId);
+        db.initCategory.set({ category: caId })
 
         const channel = await makeChannel(guild, "make a channel", ChannelType.GuildVoice, caId);
         if (!channel) return;
 
         const cid = channel.id;
-        db.makerChannel.set(cid);
+        db.trackingChannel.set({ channel: cid, type: "maker" })
     }
 
     await interaction.reply(`tracking`);

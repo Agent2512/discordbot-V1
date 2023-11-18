@@ -1,12 +1,16 @@
-import { ChannelType, Client, Events, GatewayIntentBits, OAuth2Scopes, VoiceState } from 'discord.js';
-import { base } from './database';
+import { Client, Events, GatewayIntentBits, OAuth2Scopes } from 'discord.js';
+import { Database } from './database';
 import { loadCommands } from './loadCommands';
-import { makeChannel } from './utilities';
+import { messageReactionAdd } from './reaction/MessageReactionAdd';
+import { messageReactionRemove } from './reaction/MessageReactionRemove';
+import { isTracking } from './utilities';
+import { makerJoin } from './voiceState/maker';
+import { joinSub, leaveSub } from './voiceState/sub';
 
 const TOKEN = process.env.TOKEN;
 
 const commands = await loadCommands();
-const database = base()
+const database = Database()
 
 const client = new Client({
     intents: [
@@ -50,50 +54,42 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     // find the action: joins/leaves/moves
     const action = oldState.channelId ? newState.channelId ? "moves" : "leaves" : "joins";
 
-    const newChannelTracking = database.makerChannel.get(newState.channelId || "-1");
-    const oldChannelTracking = database.makerChannel.get(oldState.channelId || "-1");
+    const newChannelTracking = isTracking(newState.channelId || "-1", database);
+    const oldChannelTracking = isTracking(oldState.channelId || "-1", database);
+    // console.log();
+    // console.log("new", newChannelTracking);
+    // console.log("old", oldChannelTracking);
+
     if (!newChannelTracking && !oldChannelTracking) return;
 
-    console.log("voice state update");
-    console.log(action);
+    const user = newState.member?.user
+    if (!user) return;
+    const username = user.username;
 
-    const user = newState.member?.user.username
-
-    console.log(user);
+    // console.log("voice state update");
+    // console.log("action:", action);
+    // console.log("user:", username);
 
 
     if (action === "joins") {
-
-    }
-    else if (action === "moves") {
-
-
+        if (newChannelTracking && newChannelTracking.type == "maker") return makerJoin(newState, database)
     }
     else if (action === "leaves") {
+        if (oldChannelTracking && oldChannelTracking.type == "sub") return leaveSub(oldState, database)
+    }
+    else if (action === "moves") {
+        if (newChannelTracking && newChannelTracking.type == "sub") return joinSub(newState, database)
 
     }
     else {
         console.log("unknown action");
     }
+
+
+    return console.log("no function called");
 });
 
-const joinFunc = async (newState: VoiceState) => {
-    const channel = newState.channel
-    if (!channel) return;
-    const caChannel = channel.parent;
-    if (!caChannel) return;
 
-    const user = newState.member?.user.username
-    if (!user) return;
+client.on(Events.MessageReactionAdd, async (reaction, user) => messageReactionAdd(reaction, user, database))
 
-    const newChannel = await makeChannel(newState.guild, `${user}'s channel`, ChannelType.GuildVoice, caChannel.id);
-    if (!newChannel) return;
-
-    newState.setChannel(newChannel.id);
-}
-
-const leaveFunc = async (oldState: VoiceState) => {
-
-}
-
-
+client.on(Events.MessageReactionRemove, async (reaction, user) => messageReactionRemove(reaction, user, database))

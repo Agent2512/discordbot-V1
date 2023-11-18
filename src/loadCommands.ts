@@ -1,13 +1,13 @@
 import { Collection, CommandInteraction, SlashCommandBuilder } from "discord.js";
 import fs from "fs";
 import path from "path";
-import { base } from "./database";
+import { Database } from "./database";
 
 
 
 type module = {
     data: SlashCommandBuilder,
-    execute: (interaction: CommandInteraction, db: base) => Promise<void>
+    execute: (interaction: CommandInteraction, db: Database) => Promise<void>
 }
 
 export const loadCommands = async () => {
