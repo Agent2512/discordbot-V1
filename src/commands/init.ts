@@ -21,29 +21,23 @@ export const execute = async (interaction: CommandInteraction, db: Database) => 
     const guild = interaction.guild;
     if (!caChannel || !guild) return;
 
-    const caId = caChannel.id;
-
-    const test = await guild.channels.fetch(caId);
-    if (!test) return;
-
-    if (test.type !== ChannelType.GuildCategory) {
+    if (caChannel.type !== ChannelType.GuildCategory) {
         return await interaction.reply(`must be a category`);
     }
 
-    const isCat = db.initCategory.has("category", caId);
+    const dbtest = db.trackingChannel.filter("Select", {
+        condition: `type = "maker" AND use = "${caChannel.id}"`
+    })
 
-    if (isCat) {
+    if (dbtest.length > 0) {
         return await interaction.reply(`already tracking`);
     }
-    else {
-        db.initCategory.set({ category: caId })
 
-        const channel = await makeChannel(guild, "make a channel", ChannelType.GuildVoice, caId);
-        if (!channel) return;
+    const channel = await makeChannel(guild, "make a channel", ChannelType.GuildVoice, caChannel.id);
+    if (!channel) return;
 
-        const cid = channel.id;
-        db.trackingChannel.set({ channel: cid, type: "maker" })
-    }
+    const cid = channel.id;
+    db.trackingChannel.set({ channel: cid, type: "maker", use: caChannel.id, guild: guild.id })
 
-    await interaction.reply(`tracking`);
+    await interaction.reply(`tracking use ${channel}`);
 }

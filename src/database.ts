@@ -8,21 +8,17 @@ const db = new GreatDB.Database({
 
 // db.pragma("journal_mode").set("WAL");
 
-const initCategorySchema = Schema.Create({
-    id: DataType.AutoIncrement,
-    category: DataType.String
-});
-
-const trackingChannelSchema = Schema.Create({
+export const trackingChannelSchema = Schema.Create({
     id: DataType.AutoIncrement,
     channel: DataType.String,
     type: DataType.String,
-    user: DataType.String,
+
+    use: DataType.String,
+
+    guild: DataType.String,
 });
 
-
 export const Database = () => ({
-    initCategory: db.table("initCategory", initCategorySchema),
     trackingChannel: db.table("trackingChannel", trackingChannelSchema),
 })
 

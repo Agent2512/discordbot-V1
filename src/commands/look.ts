@@ -11,7 +11,7 @@ export const execute = async (interaction: CommandInteraction, db: Database) => 
     if (!user) return;
 
     // get sub channel form database
-    const subChannel = db.trackingChannel.get("user", user.id)
+    const subChannel = db.trackingChannel.get("use", user.id)
     if (!subChannel) return interaction.reply("you are not in a sub channel");
 
     // get channel

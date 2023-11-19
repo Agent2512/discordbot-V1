@@ -20,7 +20,7 @@ export const makerJoin = async (state: VoiceState, db: Database) => {
     if (!subChannel) return;
 
     // add new subChannel to database
-    db.trackingChannel.set({ channel: subChannel.id, type: "sub", user: user.id })
+    db.trackingChannel.set({ channel: subChannel.id, type: "sub", use: user.id, guild: state.guild.id })
 
     // move user to new sub channel
     state.setChannel(subChannel.id);

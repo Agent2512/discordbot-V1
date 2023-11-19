@@ -11,14 +11,17 @@ export const execute = async (interaction: CommandInteraction, db: Database) => 
     const limit = interaction.options.get("limit", true)
     if (!limit) return;
 
+
     if (typeof limit.value !== "number") return interaction.reply("limit must be a number");
+
+    const value = Math.min(Math.max(limit.value, 0), 99)
 
     // get user
     const user = interaction.user
     if (!user) return;
 
     // get sub channel form database
-    const subChannel = db.trackingChannel.get("user", user.id)
+    const subChannel = db.trackingChannel.get("use", user.id)
     if (!subChannel) return interaction.reply("you are not in a sub channel");
 
     // get channel
@@ -29,8 +32,8 @@ export const execute = async (interaction: CommandInteraction, db: Database) => 
     if (channel.type !== ChannelType.GuildVoice) return;
 
     // set limit
-    await channel.setUserLimit(limit.value)
+    await channel.setUserLimit(value)
 
     // reply
-    return await interaction.reply(`channel new set limit to ${limit.value}`)
+    return await interaction.reply(`channel new set limit to ${value}`)
 }

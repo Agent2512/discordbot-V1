@@ -3,7 +3,7 @@ import { Database } from './database';
 import { loadCommands } from './loadCommands';
 import { messageReactionAdd } from './reaction/MessageReactionAdd';
 import { messageReactionRemove } from './reaction/MessageReactionRemove';
-import { isTracking } from './utilities';
+import { checkSubChannels, guildCreate, guildDelete, isTracking } from './utilities';
 import { makerJoin } from './voiceState/maker';
 import { joinSub, leaveSub } from './voiceState/sub';
 
@@ -34,6 +34,8 @@ client.once(Events.ClientReady, c => {
 
     console.log(`Ready! Logged in as ${c.user.tag}`);
     console.log(`Invite: ${inv}`);
+
+    checkSubChannels(c, database);
 });
 
 client.on(Events.InteractionCreate, interaction => {
@@ -79,7 +81,8 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     }
     else if (action === "moves") {
         if (newChannelTracking && newChannelTracking.type == "sub") return joinSub(newState, database)
-
+        if (oldChannelTracking && oldChannelTracking.type == "sub") return leaveSub(oldState, database)
+        if (newChannelTracking && newChannelTracking.type == "maker") return makerJoin(newState, database)
     }
     else {
         console.log("unknown action");
@@ -89,7 +92,11 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     return console.log("no function called");
 });
 
+client.on(Events.MessageReactionAdd, async (r, u) => messageReactionAdd(r, u, database))
 
-client.on(Events.MessageReactionAdd, async (reaction, user) => messageReactionAdd(reaction, user, database))
+client.on(Events.MessageReactionRemove, async (r, u) => messageReactionRemove(r, u, database))
 
-client.on(Events.MessageReactionRemove, async (reaction, user) => messageReactionRemove(reaction, user, database))
+client.on(Events.GuildCreate, (g) => guildCreate(g, database))
+
+client.on(Events.GuildDelete, (g) => guildDelete(g, database))
+

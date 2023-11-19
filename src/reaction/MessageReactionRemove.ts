@@ -17,7 +17,7 @@ export const messageReactionRemove = (reaction: MessageReaction | PartialMessage
     if (tracking.type !== "sub") return;
 
     // is user owner of sub channel
-    if (tracking.user !== uid) return;
+    if (tracking.use !== uid) return;
 
     // is GuildVoice channel
     if (channel.type !== ChannelType.GuildVoice) return;
