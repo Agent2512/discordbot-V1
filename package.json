@@ -1,5 +1,5 @@
 {
-  "name": "discordbot",
+  "name": "discordbot-v1",
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
