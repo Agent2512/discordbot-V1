@@ -7,6 +7,9 @@ The user created channel will be destroyed when the user leaves the channel and 
 
 What's the user who created the channel joined it there will be sent a message into text channel with an reaction for looking the voice channel and and message with some commands to use
 
+You need to make a .env with TOKEN={bot token} and APP_ID={bot id} from discord developer portal
+
+
 To install dependencies:
 
 ```bash
