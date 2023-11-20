@@ -1,4 +1,4 @@
-# discordbotV1 how to Channel creation
+# discordbotV1 auto Channel creation
 run /init category in discord and it will make a channel called "make your channel" in the category you selected
 When you join this channel it will make a new channel called "{username}'s channel" and move the user into it
 The user created channel will be destroyed when the user leaves the channel and all other user will get disconnected
